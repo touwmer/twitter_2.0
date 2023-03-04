@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+# admin, admin@twitter.com, admin123456
 
 from pathlib import Path
 
@@ -25,7 +26,7 @@ SECRET_KEY = 'rco*2#$8^@f5r(ep7d3(2(6!sah7me56#g9uf4upc5zxmi^$t4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','192.168.86.171']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','192.168.86.172']
 
 
 # Application definition
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 
     # project apps
     'accounts',
+    'tweets',
 ]
 
 
@@ -87,8 +89,12 @@ WSGI_APPLICATION = 'twitter_yan.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'twitter_yan',
+        'HOST' : '192.168.86.172',
+        'PORT' : '3306',
+        'USER' : 'root',
+        'PASSWORD' :  '123456',
     }
 }
 
