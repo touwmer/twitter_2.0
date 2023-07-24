@@ -1,3 +1,9 @@
+from django.utils.decorators import method_decorator
+from ratelimit.decorators import ratelimit
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+
 from comments.api.serializers import (
     CommentSerializer,
     CommentSerializerForCreate,
@@ -5,9 +11,6 @@ from comments.api.serializers import (
 )
 from comments.models import Comment
 from inbox.services import NotificationService
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
 from utils.decorators import required_params
 from utils.permissions import IsObjectOwner
 
@@ -30,6 +33,7 @@ class CommentViewSet(viewsets.GenericViewSet):
         return [AllowAny()]
 
     @required_params(params=['tweet_id'])
+    @method_decorator(ratelimit(key='user', rate='10/s', method='GET', block=True))
     def list(self, request, *args, **kwargs):
         """
         This is OK for only one tweet_id
@@ -55,6 +59,8 @@ class CommentViewSet(viewsets.GenericViewSet):
             {'comments': serializer.data},
             status=status.HTTP_200_OK,
         )
+
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def create(self, request, *args, **kwargs):
         data = {
             'user_id': request.user.id,
@@ -77,6 +83,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def update(self, request, *args, **kwargs):
         # get_object 是 DRF 包装的一个函数，会在找不到的时候 raise 404 error
         # 所以这里无需做额外判断
@@ -97,6 +104,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @method_decorator(ratelimit(key='user', rate='5/s', method='POST', block=True))
     def destroy(self, request, *args, **kwargs):
         comment = self.get_object()
         comment.delete()
